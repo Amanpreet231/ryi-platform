@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
-
 export async function POST(req: NextRequest) {
   try {
+    if (!process.env.GROQ_API_KEY) {
+      return NextResponse.json({ success: false, error: 'AI service not configured' }, { status: 503 });
+    }
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const { 
       productName,
       productDescription,
