@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
-import { Avatar } from '@/components/ui';
 import {
   LayoutDashboard, Briefcase, Handshake, User, Bell,
   MessageCircle, Menu, X, Sparkles, LogOut, Users,
@@ -47,6 +46,33 @@ const brandNav: NavItem[] = [
   { label: 'Profile', href: '/brand/profile', icon: User },
 ];
 
+// Bottom nav shows 5 primary items on mobile
+const influencerBottomNav: NavItem[] = [
+  { label: 'Home', href: '/influencer', icon: LayoutDashboard },
+  { label: 'Deals', href: '/influencer/campaigns', icon: Briefcase },
+  { label: 'My Deals', href: '/influencer/deals', icon: Handshake },
+  { label: 'Messages', href: '/messages', icon: MessageCircle },
+  { label: 'More', href: '#more', icon: Menu },
+];
+
+const brandBottomNav: NavItem[] = [
+  { label: 'Home', href: '/brand', icon: LayoutDashboard },
+  { label: 'Campaigns', href: '/brand/campaigns', icon: FileText },
+  { label: 'Creators', href: '/influencers', icon: Search },
+  { label: 'Messages', href: '/messages', icon: MessageCircle },
+  { label: 'More', href: '#more', icon: Menu },
+];
+
+function UserAvatar({ name, url }: { name?: string; url?: string }) {
+  if (url) return <img src={url} alt={name} className="h-7 w-7 rounded-full object-cover border border-zinc-700 shrink-0" />;
+  const initials = name ? name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?';
+  return (
+    <div className="h-7 w-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300 shrink-0">
+      {initials}
+    </div>
+  );
+}
+
 export function DashboardLayout({ children, userType, user, profile }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -55,6 +81,10 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
   const navItems = userType === 'influencer' ? influencerNav : brandNav;
+  const bottomNavItems = userType === 'influencer' ? influencerBottomNav : brandBottomNav;
+
+  // Close mobile drawer on route change
+  React.useEffect(() => { setIsMobileOpen(false); }, [pathname]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -63,9 +93,14 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
 
   const displayName = profile?.company_name || user.full_name || user.email?.split('@')[0] || 'User';
 
+  const isActive = (href: string) =>
+    href === '/influencer' || href === '/brand'
+      ? pathname === href
+      : pathname.startsWith(href);
+
   return (
     <div className="min-h-screen bg-black flex">
-      {/* Desktop sidebar */}
+      {/* ── Desktop sidebar ── */}
       <aside className={cn(
         'hidden md:flex flex-col fixed top-0 left-0 h-screen bg-zinc-950 border-r border-zinc-800/60 z-40 transition-all duration-300',
         isSidebarOpen ? 'w-60' : 'w-[68px]'
@@ -84,39 +119,35 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
               <span className="text-sm font-black text-black">R</span>
             </Link>
           )}
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className={cn(
-              'flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-800 hover:text-white transition-colors shrink-0',
-              !isSidebarOpen && 'hidden'
-            )}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+          {isSidebarOpen && (
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-800 hover:text-white transition-colors shrink-0"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/influencer' && item.href !== '/brand' && pathname.startsWith(item.href));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                title={!isSidebarOpen ? item.label : undefined}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150',
-                  isActive
-                    ? 'bg-white text-black'
-                    : 'text-zinc-400 hover:bg-zinc-900 hover:text-white',
-                  !isSidebarOpen && 'justify-center px-2'
-                )}
-              >
-                <item.icon className="h-5 w-5 shrink-0" />
-                {isSidebarOpen && <span>{item.label}</span>}
-              </Link>
-            );
-          })}
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              title={!isSidebarOpen ? item.label : undefined}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150',
+                isActive(item.href)
+                  ? 'bg-white text-black'
+                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-white',
+                !isSidebarOpen && 'justify-center px-2'
+              )}
+            >
+              <item.icon className="h-5 w-5 shrink-0" />
+              {isSidebarOpen && <span>{item.label}</span>}
+            </Link>
+          ))}
         </nav>
 
         {/* Bottom user section */}
@@ -130,7 +161,7 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
             </button>
           )}
           <div className={cn('flex items-center gap-3', !isSidebarOpen && 'justify-center')}>
-            <Avatar src={user.avatar_url} fallback={displayName} size="sm" />
+            <UserAvatar url={user.avatar_url} name={displayName} />
             {isSidebarOpen && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{displayName}</p>
@@ -150,7 +181,7 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
         </div>
       </aside>
 
-      {/* Mobile overlay */}
+      {/* ── Mobile full-screen drawer ── */}
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsMobileOpen(false)} />
@@ -167,33 +198,29 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
               </button>
             </div>
             <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href || (item.href !== '/influencer' && item.href !== '/brand' && pathname.startsWith(item.href));
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsMobileOpen(false)}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
-                      isActive ? 'bg-white text-black' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
-                    )}
-                  >
-                    <item.icon className="h-5 w-5 shrink-0" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all',
+                    isActive(item.href) ? 'bg-white text-black' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+                  )}
+                >
+                  <item.icon className="h-5 w-5 shrink-0" />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
             </nav>
             <div className="p-3 border-t border-zinc-800/60 space-y-1">
               <div className="flex items-center gap-3 px-3 py-2">
-                <Avatar src={user.avatar_url} fallback={displayName} size="sm" />
+                <UserAvatar url={user.avatar_url} name={displayName} />
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-white truncate">{displayName}</p>
                   <p className="text-xs text-zinc-500 capitalize">{userType}</p>
                 </div>
               </div>
-              <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-zinc-900 transition-colors text-sm">
+              <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-zinc-900 transition-colors text-sm">
                 <LogOut className="h-4 w-4" />
                 <span>Sign out</span>
               </button>
@@ -202,27 +229,66 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
         </div>
       )}
 
-      {/* Main content */}
-      <div className={cn('flex-1 flex flex-col min-h-screen transition-all duration-300', isSidebarOpen ? 'md:ml-60' : 'md:ml-[68px]')}>
+      {/* ── Main content ── */}
+      <div className={cn(
+        'flex-1 flex flex-col min-h-screen transition-all duration-300',
+        isSidebarOpen ? 'md:ml-60' : 'md:ml-[68px]'
+      )}>
         {/* Mobile top bar */}
         <header className="md:hidden flex h-14 items-center justify-between px-4 border-b border-zinc-800/60 bg-zinc-950 sticky top-0 z-30">
-          <button onClick={() => setIsMobileOpen(true)} className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800">
-            <Menu className="h-5 w-5" />
-          </button>
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white">
               <span className="text-xs font-black text-black">RYI</span>
             </div>
+            <span className="font-semibold text-white text-sm">RYI</span>
           </Link>
-          <Link href="/notifications" className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800">
-            <Bell className="h-5 w-5" />
-          </Link>
+          <div className="flex items-center gap-1">
+            <Link href="/notifications" className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800">
+              <Bell className="h-5 w-5" />
+            </Link>
+            <button onClick={() => setIsMobileOpen(true)} className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800">
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
+        {/* Page content — add bottom padding on mobile for the nav bar */}
+        <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-6 lg:pb-8">
           {children}
         </main>
       </div>
+
+      {/* ── Mobile bottom navigation bar ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950 border-t border-zinc-800/60 flex items-stretch safe-area-inset-bottom">
+        {bottomNavItems.map((item) => {
+          const active = item.href !== '#more' && isActive(item.href);
+          if (item.href === '#more') {
+            return (
+              <button
+                key="more"
+                onClick={() => setIsMobileOpen(true)}
+                className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-zinc-500 hover:text-white transition-colors"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="text-[10px] font-medium">More</span>
+              </button>
+            );
+          }
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'flex-1 flex flex-col items-center justify-center gap-1 py-2.5 transition-colors',
+                active ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+              )}
+            >
+              <item.icon className={cn('h-5 w-5', active && 'stroke-[2.5]')} />
+              <span className={cn('text-[10px] font-medium', active ? 'text-white' : 'text-zinc-500')}>{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }
