@@ -469,26 +469,42 @@ export default function InfluencerCampaignsPage() {
             );
           })}
         </motion.div>
+      ) : campaigns.length === 0 ? (
+        /* Zero campaigns in DB — founding creator empty state */
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+          className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm rounded-2xl py-16 px-8 text-center max-w-2xl mx-auto">
+          <div className="h-16 w-16 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-5">
+            <Briefcase className="h-8 w-8 text-green-400" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">Be a Founding Creator</h3>
+          <p className="text-zinc-400 text-sm leading-relaxed mb-6 max-w-md mx-auto">
+            Brands are being onboarded right now. The first 100 creators on RYI get a free <span className="text-white font-medium">verified badge</span> and priority visibility — making you the first brands see when they post campaigns.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800/80 rounded-xl text-zinc-300">
+              <span className="text-green-400">✓</span> Profile complete
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800/80 rounded-xl text-zinc-300">
+              <span className="text-yellow-400">⏳</span> First campaigns arriving soon
+            </div>
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800/80 rounded-xl text-zinc-300">
+              <span className="text-blue-400">🔔</span> You&apos;ll be notified
+            </div>
+          </div>
+        </motion.div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm rounded-2xl py-16 text-center"
-        >
+        /* Campaigns exist but filters return nothing */
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+          className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm rounded-2xl py-16 text-center">
           <Briefcase className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-white mb-2">No campaigns match your filters</h3>
           <p className="text-zinc-500 text-sm mb-6 max-w-sm mx-auto">
             Try adjusting or clearing your filters to discover more opportunities.
           </p>
-          {hasActiveFilters && (
-            <button
-              onClick={clearFilters}
-              className="bg-white text-black font-semibold hover:bg-zinc-100 rounded-xl px-4 py-2 text-sm transition-all duration-200"
-            >
-              Clear Filters
-            </button>
-          )}
+          <button onClick={clearFilters}
+            className="bg-white text-black font-semibold hover:bg-zinc-100 rounded-xl px-4 py-2 text-sm transition-all duration-200">
+            Clear Filters
+          </button>
         </motion.div>
       )}
 
