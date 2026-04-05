@@ -239,32 +239,21 @@ export default function HomePage() {
                 Free to join · No credit card · 10% fee only on earnings
               </motion.p>
 
-              {/* Stats */}
+              {/* Founding batch callout */}
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className="mt-12 flex items-center gap-8"
+                className="mt-10 inline-flex items-start gap-3 p-4 bg-white/5 border border-white/10 rounded-2xl max-w-sm"
               >
-                <div>
-                  <p className="text-3xl font-bold text-white tabular-nums">
-                    <AnimatedCounter target={10000} suffix="+" />
-                  </p>
-                  <p className="text-sm text-zinc-500 mt-0.5">Influencers</p>
+                <div className="h-8 w-8 rounded-lg bg-yellow-400/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-sm">⚡</span>
                 </div>
-                <div className="w-px h-12 bg-zinc-800" />
                 <div>
-                  <p className="text-3xl font-bold text-white tabular-nums">
-                    <AnimatedCounter target={2000} suffix="+" />
+                  <p className="text-sm font-semibold text-white">Join the Founding Batch</p>
+                  <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+                    We're onboarding our first creators now. Get verified early, rank higher when brands search, and lock in 0% fee for your first 3 deals.
                   </p>
-                  <p className="text-sm text-zinc-500 mt-0.5">Brands</p>
-                </div>
-                <div className="w-px h-12 bg-zinc-800" />
-                <div>
-                  <p className="text-3xl font-bold text-white">
-                    ₹<AnimatedCounter target={5} />Cr+
-                  </p>
-                  <p className="text-sm text-zinc-500 mt-0.5">Paid Out</p>
                 </div>
               </motion.div>
             </div>
@@ -540,11 +529,11 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Section>
             <motion.div variants={fadeUp} className="text-center mb-16">
-              <p className="text-sm font-medium text-zinc-500 uppercase tracking-widest mb-4">Creator Stories</p>
+              <p className="text-sm font-medium text-zinc-500 uppercase tracking-widest mb-4">Early Creator Feedback</p>
               <h2 className="text-4xl md:text-5xl font-bold text-white">
-                Real Creators, Real Earnings
+                Built for Creators Like You
               </h2>
-              <p className="mt-4 text-zinc-400">Join thousands of influencers already earning on RYI</p>
+              <p className="mt-4 text-zinc-400">Here's what India's micro-influencers tell us they need most</p>
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-6">
@@ -627,8 +616,8 @@ export default function HomePage() {
                 </span>
               </h2>
               <p className="mt-6 text-zinc-400 text-lg max-w-2xl mx-auto">
-                Join 10,000+ creators who are earning from brands right now.
-                Sign up free — your profile goes live in minutes.
+                We're onboarding India's first batch of creators right now.
+                Sign up free — your profile goes live in minutes and brands can find you immediately.
               </p>
 
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -636,7 +625,7 @@ export default function HomePage() {
                   href="/signup/influencer"
                   className="group flex items-center gap-2 px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-zinc-100 transition-all shadow-[0_0_40px_rgba(255,255,255,0.15)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
                 >
-                  Join as Influencer — It&apos;s Free
+                  Join the Founding Batch — Free
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
