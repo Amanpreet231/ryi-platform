@@ -3,8 +3,15 @@
 import * as React from 'react';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
-import { Search, MapPin, CheckCircle, X, Instagram, Youtube, Twitter, Send, SlidersHorizontal } from 'lucide-react';
-import { INDIAN_CITIES, CONTENT_NICHES, formatCurrency } from '@/lib/utils';
+import { Search, MapPin, CheckCircle, X, Send, SlidersHorizontal } from 'lucide-react';
+
+function IgIcon({ className }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>;
+}
+function YtIcon({ className }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>;
+}
+import { INDIAN_CITIES, CONTENT_NICHES } from '@/lib/utils';
 import type { InfluencerProfile } from '@/types';
 
 const fade = { hidden: { opacity: 0, y: 12 }, visible: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.35, delay: i * 0.05 } }) };
@@ -61,7 +68,7 @@ function ProfileModal({ influencer, onClose, onConnect }: { influencer: Influenc
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.2 }}
         className="relative w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-zinc-800">
@@ -91,14 +98,14 @@ function ProfileModal({ influencer, onClose, onConnect }: { influencer: Influenc
           <div className="grid grid-cols-3 gap-3">
             {influencer.instagram_followers && (
               <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-3 text-center">
-                <Instagram className="h-4 w-4 text-pink-400 mx-auto mb-1" />
+                <IgIcon className="h-4 w-4 text-pink-400 mx-auto mb-1" />
                 <p className="text-sm font-bold text-white">{fmtFollowers(influencer.instagram_followers)}</p>
                 <p className="text-xs text-zinc-500">Followers</p>
               </div>
             )}
             {influencer.youtube_subscribers && (
               <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-3 text-center">
-                <Youtube className="h-4 w-4 text-red-400 mx-auto mb-1" />
+                <YtIcon className="h-4 w-4 text-red-400 mx-auto mb-1" />
                 <p className="text-sm font-bold text-white">{fmtFollowers(influencer.youtube_subscribers)}</p>
                 <p className="text-xs text-zinc-500">Subscribers</p>
               </div>
@@ -149,12 +156,12 @@ function ProfileModal({ influencer, onClose, onConnect }: { influencer: Influenc
             <div className="flex gap-2 flex-wrap">
               {influencer.instagram_handle && (
                 <span className="flex items-center gap-1.5 text-xs text-zinc-400 bg-zinc-800/80 px-3 py-1.5 rounded-lg">
-                  <Instagram className="h-3 w-3 text-pink-400" />{influencer.instagram_handle}
+                  <IgIcon className="h-3 w-3 text-pink-400" />{influencer.instagram_handle}
                 </span>
               )}
               {influencer.youtube_handle && (
                 <span className="flex items-center gap-1.5 text-xs text-zinc-400 bg-zinc-800/80 px-3 py-1.5 rounded-lg">
-                  <Youtube className="h-3 w-3 text-red-400" />{influencer.youtube_handle}
+                  <YtIcon className="h-3 w-3 text-red-400" />{influencer.youtube_handle}
                 </span>
               )}
             </div>
@@ -343,13 +350,13 @@ export default function FindInfluencersPage() {
                 <div className="flex gap-3">
                   {inf.instagram_followers && (
                     <div className="flex items-center gap-1">
-                      <Instagram className="h-3.5 w-3.5 text-pink-400" />
+                      <IgIcon className="h-3.5 w-3.5 text-pink-400" />
                       <span className="text-xs font-semibold text-white">{fmtFollowers(inf.instagram_followers)}</span>
                     </div>
                   )}
                   {inf.youtube_subscribers && (
                     <div className="flex items-center gap-1">
-                      <Youtube className="h-3.5 w-3.5 text-red-400" />
+                      <YtIcon className="h-3.5 w-3.5 text-red-400" />
                       <span className="text-xs font-semibold text-white">{fmtFollowers(inf.youtube_subscribers)}</span>
                     </div>
                   )}
