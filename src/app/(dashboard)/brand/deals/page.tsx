@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
 import { Handshake, CheckCircle, IndianRupee, Clock, ArrowRight } from 'lucide-react';
@@ -17,6 +18,7 @@ const statusStyles: Record<string, string> = {
 };
 
 export default function BrandDealsPage() {
+  const router = useRouter();
   const supabase = createClient();
   const [deals, setDeals] = React.useState<Deal[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -79,10 +81,10 @@ export default function BrandDealsPage() {
 
       {/* Filter tabs */}
       <motion.div variants={fade} initial="hidden" animate="visible" custom={5}
-        className="flex items-center gap-1 bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-1 w-fit">
+        className="flex items-center gap-1 bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-1 overflow-x-auto">
         {(['all', 'active', 'completed', 'paid'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-colors ${filter === f ? 'bg-white text-black' : 'text-zinc-400 hover:text-white'}`}>
+            className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${filter === f ? 'bg-white text-black' : 'text-zinc-400 hover:text-white'}`}>
             {f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
@@ -100,7 +102,7 @@ export default function BrandDealsPage() {
         <div className="space-y-3">
           {filteredDeals.map((deal, i) => (
             <motion.div key={deal.id} variants={fade} initial="hidden" animate="visible" custom={i + 6}
-              onClick={() => window.location.href = `/brand/deals/${deal.id}`}
+              onClick={() => router.push(`/brand/deals/${deal.id}`)}
               className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm rounded-2xl p-5 hover:border-zinc-700/80 transition-all cursor-pointer group">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">

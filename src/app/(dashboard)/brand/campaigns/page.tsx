@@ -60,16 +60,16 @@ export default function BrandCampaignsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div variants={fade} initial="hidden" animate="visible" custom={0} className="flex items-center justify-between">
-        <div>
+      <motion.div variants={fade} initial="hidden" animate="visible" custom={0} className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-white">My Campaigns</h1>
           <p className="text-zinc-500 text-sm mt-0.5">
             {campaigns.length === 0 ? 'No campaigns yet' : `${campaigns.length} campaign${campaigns.length !== 1 ? 's' : ''} · ${campaigns.filter(c => c.status === 'open').length} open`}
           </p>
         </div>
         <button onClick={() => router.push('/brand/campaigns/new')}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition-colors text-sm">
-          <Plus className="h-4 w-4" /> Post Campaign
+          className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition-colors text-sm shrink-0">
+          <Plus className="h-4 w-4" /><span className="hidden sm:inline">Post Campaign</span>
         </button>
       </motion.div>
 

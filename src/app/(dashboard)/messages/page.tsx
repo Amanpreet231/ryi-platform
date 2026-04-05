@@ -94,8 +94,8 @@ export default function MessagesPage() {
   const otherName = (c: any) => c?.other_user?.full_name || c?.other_user?.company_name || 'User';
 
   if (isLoading) return (
-    <div className="flex h-[calc(100vh-120px)] bg-zinc-900/60 border border-zinc-800/80 rounded-2xl overflow-hidden">
-      <div className="w-80 border-r border-zinc-800 p-4 space-y-3">
+    <div className="flex h-[calc(100dvh-120px)] md:h-[calc(100vh-120px)] bg-zinc-900/60 border border-zinc-800/80 rounded-2xl overflow-hidden">
+      <div className="w-full md:w-80 border-r border-zinc-800 p-4 space-y-3">
         {[...Array(4)].map((_, i) => <div key={i} className="h-16 bg-zinc-800 rounded-xl animate-pulse" />)}
       </div>
       <div className="flex-1 flex items-center justify-center text-zinc-600">
@@ -105,7 +105,7 @@ export default function MessagesPage() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-120px)] bg-zinc-900/60 border border-zinc-800/80 rounded-2xl overflow-hidden">
+    <div className="flex h-[calc(100dvh-120px)] md:h-[calc(100vh-120px)] bg-zinc-900/60 border border-zinc-800/80 rounded-2xl overflow-hidden">
       {/* Sidebar */}
       <div className={`w-full md:w-80 border-r border-zinc-800 flex flex-col shrink-0 ${selected ? 'hidden md:flex' : 'flex'}`}>
         <div className="px-4 py-3.5 border-b border-zinc-800">

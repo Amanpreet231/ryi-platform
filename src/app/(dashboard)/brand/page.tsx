@@ -76,14 +76,14 @@ export default function BrandDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <motion.div variants={fade} initial="hidden" animate="visible" custom={0} className="flex items-center justify-between">
-        <div>
+      <motion.div variants={fade} initial="hidden" animate="visible" custom={0} className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-white">Brand Dashboard</h1>
           <p className="text-zinc-500 text-sm mt-1">Manage your campaigns and collaborations</p>
         </div>
         <button onClick={() => router.push('/brand/campaigns/new')}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition-colors text-sm">
-          <Plus className="h-4 w-4" /> Post Campaign
+          className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition-colors text-sm shrink-0">
+          <Plus className="h-4 w-4" /><span className="hidden sm:inline">Post Campaign</span>
         </button>
       </motion.div>
 
@@ -140,7 +140,7 @@ export default function BrandDashboardPage() {
               className="flex items-center justify-between p-4 bg-zinc-900/60 border border-zinc-800/80 rounded-xl hover:border-zinc-700/80 hover:bg-zinc-900/80 transition-all group">
               <div className="flex items-center gap-3">
                 <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${item.color}`}>
-                  <item.icon className="h-4.5 w-4.5" />
+                  <item.icon className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-white">{item.label}</p>

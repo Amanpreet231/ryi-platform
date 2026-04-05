@@ -82,7 +82,7 @@ export default function InfluencerOnboardingPage() {
       }).eq('user_id', user.id);
 
       if (err) throw err;
-      window.location.href = '/influencer';
+      router.push('/influencer');
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {

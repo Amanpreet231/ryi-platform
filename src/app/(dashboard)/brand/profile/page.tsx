@@ -122,7 +122,7 @@ export default function BrandProfilePage() {
           <label className={labelClass}>Website</label>
           <input name="website" type="url" placeholder="https://example.com" value={formData.website} onChange={handleChange} className={inputClass} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Industry</label>
             <select name="industry" value={formData.industry} onChange={handleChange} className={inputClass}>

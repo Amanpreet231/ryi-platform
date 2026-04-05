@@ -55,7 +55,7 @@ export default function NewCampaignPage() {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = '/login'; return; }
+      if (!user) { router.push('/login'); return; }
 
       const { error: insertError } = await supabase.from('campaigns').insert({
         brand_id: user.id,
@@ -72,7 +72,7 @@ export default function NewCampaignPage() {
       });
 
       if (insertError) throw insertError;
-      window.location.href = '/brand/campaigns';
+      router.push('/brand/campaigns');
     } catch (err: any) {
       setError(err.message || 'Failed to create campaign. Please try again.');
       setIsLoading(false);
@@ -138,7 +138,7 @@ export default function NewCampaignPage() {
             <p className="font-semibold text-white text-sm">Budget & Timeline</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Budget (₹) <span className="text-red-500">*</span></label>
               <div className="relative">

@@ -112,7 +112,7 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
                   !isSidebarOpen && 'justify-center px-2'
                 )}
               >
-                <item.icon className="h-4.5 w-4.5 shrink-0" />
+                <item.icon className="h-5 w-5 shrink-0" />
                 {isSidebarOpen && <span>{item.label}</span>}
               </Link>
             );
@@ -179,7 +179,7 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
                       isActive ? 'bg-white text-black' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
                     )}
                   >
-                    <item.icon className="h-4.5 w-4.5 shrink-0" />
+                    <item.icon className="h-5 w-5 shrink-0" />
                     <span>{item.label}</span>
                   </Link>
                 );

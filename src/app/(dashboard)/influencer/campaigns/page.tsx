@@ -61,11 +61,7 @@ export default function InfluencerCampaignsPage() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
 
-  React.useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     setIsLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setIsLoading(false); return; }
@@ -85,7 +81,11 @@ export default function InfluencerCampaignsPage() {
     setCampaigns(campaignsData || []);
     setAppliedIds(new Set((applicationsData || []).map((a: { campaign_id: string }) => a.campaign_id)));
     setIsLoading(false);
-  };
+  }, []);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filteredCampaigns = React.useMemo(() => {
     let result = [...campaigns];
@@ -235,7 +235,7 @@ export default function InfluencerCampaignsPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-zinc-900/50 border border-zinc-800 text-white rounded-xl focus:border-zinc-600 focus:outline-none px-3 py-2 text-sm min-w-[170px]"
+            className="bg-zinc-900/50 border border-zinc-800 text-white rounded-xl focus:border-zinc-600 focus:outline-none px-3 py-2 text-sm w-full sm:w-auto sm:min-w-[170px]"
           >
             {SORT_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
