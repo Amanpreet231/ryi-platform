@@ -39,6 +39,11 @@ export default function BrandSignupPage() {
         await supabase.from('profiles').update({ user_type: 'brand', full_name: formData.fullName, phone: formData.phone }).eq('id', data.user.id);
         await supabase.from('brand_profiles').insert({ user_id: data.user.id, company_name: formData.companyName });
         setSuccess(true);
+        fetch('/api/welcome-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email, name: formData.fullName, userType: 'brand', companyName: formData.companyName }),
+        }).catch(() => {});
         setTimeout(() => { router.push('/onboarding/brand'); }, 1500);
       }
     } catch { setError('An unexpected error occurred'); setIsLoading(false); }

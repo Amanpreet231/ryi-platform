@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
-import { Briefcase, Users, Handshake, IndianRupee, Plus, ArrowRight, Clock } from 'lucide-react';
+import { Briefcase, Users, Handshake, IndianRupee, Plus, ArrowRight, Clock, CheckCircle2, Circle } from 'lucide-react';
 
 const fade = { hidden: { opacity: 0, y: 16 }, visible: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.4, delay: i * 0.07 } }) };
 
@@ -93,6 +93,48 @@ export default function BrandDashboardPage() {
         <StatCard icon={Handshake} label="Deals" value={stats.deals} color="bg-green-500/10 text-green-400" delay={3} />
         <StatCard icon={IndianRupee} label="Total Spent" value={`₹${stats.spent.toLocaleString('en-IN')}`} color="bg-orange-500/10 text-orange-400" delay={4} />
       </div>
+
+      {/* Getting Started checklist — only when brand has no campaigns */}
+      {stats.campaigns === 0 && (
+        <motion.div variants={fade} initial="hidden" animate="visible" custom={5}
+          className="bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 border border-zinc-700/60 rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center">
+              <span className="text-sm font-black text-white">🚀</span>
+            </div>
+            <div>
+              <h2 className="font-semibold text-white text-sm">Getting Started</h2>
+              <p className="text-xs text-zinc-500">4 steps to your first influencer collaboration</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {[
+              { step: 1, label: 'Complete your brand profile', desc: 'Add logo, website, and company description', href: '/brand/profile', done: false },
+              { step: 2, label: 'Post your first campaign', desc: 'Describe what you need and set your budget', href: '/brand/campaigns/new', done: false },
+              { step: 3, label: 'Review creator applications', desc: 'Choose the best fit for your brand', href: '/brand/applications', done: false },
+              { step: 4, label: 'Approve and pay on delivery', desc: 'Escrow payment — only pay when happy', href: '/brand/deals', done: false },
+            ].map((item) => (
+              <Link key={item.step} href={item.href}
+                className="flex items-start gap-3 p-3.5 rounded-xl hover:bg-zinc-800/60 transition-colors group">
+                <div className="mt-0.5 shrink-0 text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                  {item.done ? <CheckCircle2 className="h-5 w-5 text-green-400" /> : <Circle className="h-5 w-5" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-white group-hover:text-zinc-100">{item.label}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{item.desc}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-zinc-700 group-hover:text-zinc-400 group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5" />
+              </Link>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t border-zinc-800/60">
+            <Link href="/brand/campaigns/new"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition-colors text-sm">
+              <Plus className="h-4 w-4" />Post Your First Campaign
+            </Link>
+          </div>
+        </motion.div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Applications */}

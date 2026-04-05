@@ -33,20 +33,11 @@ export const metadata: Metadata = {
     title: 'Get Paid Brand Deals with 1K Followers | RYI India',
     description:
       "India's #1 micro-influencer marketplace. No agencies, direct deals, guaranteed 72hr payments.",
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'RYI — ReachYourInfluencer',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Get Paid Brand Deals with 1K Followers | RYI India',
     description: "India's micro-influencer marketplace. Free to join, 10% fee only on earnings.",
-    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
