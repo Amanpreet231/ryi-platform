@@ -12,7 +12,8 @@ export default function InfluencerProfilePage() {
   const router = useRouter();
   const supabase = createClient();
   const [isSaving, setIsSaving] = React.useState(false);
-  
+  const [saveStatus, setSaveStatus] = React.useState<'idle' | 'success' | 'error'>('idle');
+
   const [user, setUser] = React.useState<any>(null);
   const [profile, setProfile] = React.useState<any>(null);
   const [isLoadingData, setIsLoadingData] = React.useState(true);
@@ -119,10 +120,12 @@ export default function InfluencerProfilePage() {
         price_per_post: formData.pricePerPost ? parseInt(formData.pricePerPost) : null,
       }).eq('user_id', user.id);
 
-      alert('Profile updated successfully!');
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Error saving profile');
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } finally {
       setIsSaving(false);
     }
@@ -310,6 +313,16 @@ export default function InfluencerProfilePage() {
         </CardContent>
       </Card>
 
+      {saveStatus === 'success' && (
+        <div className="p-3.5 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 text-sm">
+          Profile updated successfully!
+        </div>
+      )}
+      {saveStatus === 'error' && (
+        <div className="p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+          Error saving profile. Please try again.
+        </div>
+      )}
       <div className="flex justify-end gap-4">
         <Button variant="outline" onClick={() => router.back()}>
           Cancel

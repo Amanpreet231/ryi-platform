@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { createClient } from '@/lib/supabase-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +20,12 @@ export async function POST(request: NextRequest) {
     if (generatedSignature !== razorpay_signature) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
+
+    const supabase = await createClient();
+    await supabase
+      .from('deals')
+      .update({ status: 'paid', paid_at: new Date().toISOString() })
+      .eq('id', dealId);
 
     return NextResponse.json({
       success: true,

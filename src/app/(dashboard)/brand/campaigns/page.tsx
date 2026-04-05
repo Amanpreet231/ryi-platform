@@ -13,6 +13,8 @@ export default function BrandCampaignsPage() {
   const supabase = createClient();
   const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
 
   const fetchCampaigns = React.useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -33,13 +35,10 @@ export default function BrandCampaignsPage() {
   }, [fetchCampaigns]);
 
   const handleDelete = async (campaignId: string) => {
-    if (!confirm('Are you sure you want to delete this campaign?')) return;
-
-    await supabase
-      .from('campaigns')
-      .delete()
-      .eq('id', campaignId);
-
+    setDeletingId(campaignId);
+    await supabase.from('campaigns').delete().eq('id', campaignId);
+    setConfirmDeleteId(null);
+    setDeletingId(null);
     await fetchCampaigns();
   };
 
@@ -129,14 +128,20 @@ export default function BrandCampaignsPage() {
                     >
                       <Users className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDelete(campaign.id)}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {confirmDeleteId === campaign.id ? (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-zinc-400">Delete?</span>
+                        <Button size="sm" variant="outline" className="text-red-400 hover:text-red-300 h-7 px-2 text-xs"
+                          onClick={() => handleDelete(campaign.id)} disabled={deletingId === campaign.id}>
+                          {deletingId === campaign.id ? '...' : 'Yes'}
+                        </Button>
+                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setConfirmDeleteId(null)}>No</Button>
+                      </div>
+                    ) : (
+                      <Button variant="outline" size="sm" onClick={() => setConfirmDeleteId(campaign.id)} className="text-red-400 hover:text-red-300">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>

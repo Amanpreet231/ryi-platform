@@ -19,6 +19,7 @@ export default function BrandDealDetailPage() {
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [showRejectModal, setShowRejectModal] = React.useState(false);
   const [showApproveModal, setShowApproveModal] = React.useState(false);
+  const [paymentError, setPaymentError] = React.useState('');
 
   React.useEffect(() => {
     fetchDeal();
@@ -273,10 +274,15 @@ export default function BrandDealDetailPage() {
                     setShowApproveModal(false);
                   }}
                   onError={(error) => {
-                    alert(error);
+                    setPaymentError(String(error));
                   }}
                 />
-                <Button 
+                {paymentError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+                    {paymentError}
+                  </div>
+                )}
+                <Button
                   variant="outline"
                   className="w-full"
                   onClick={() => setShowRejectModal(true)}

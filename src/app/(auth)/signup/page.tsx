@@ -3,110 +3,105 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Zap, Building2, ArrowRight, Check } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
-import { Button, Card } from '@/components/ui';
+import { motion } from 'framer-motion';
+import { TrendingUp, Briefcase, Check, ArrowRight, ChevronRight } from 'lucide-react';
 
 export default function SignupPage() {
   const router = useRouter();
-  const supabase = createClient();
-  const [selectedType, setSelectedType] = React.useState<'influencer' | 'brand' | null>(null);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-b from-zinc-950 to-black">
-      <div className="w-full max-w-2xl">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
-              <span className="text-xl font-bold text-black">RYI</span>
+    <div className="relative min-h-screen bg-black flex items-center justify-center px-4 py-12 overflow-hidden">
+      {/* Grid bg */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-white/3 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="relative w-full max-w-2xl">
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10"
+        >
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+              <span className="text-sm font-black text-black">RYI</span>
             </div>
+            <span className="font-semibold text-white">ReachYourInfluencer</span>
           </Link>
-          <h1 className="text-3xl font-bold text-white">Join RYI Today</h1>
-          <p className="mt-2 text-zinc-400">Choose how you want to get started</p>
-        </div>
+          <h1 className="text-3xl font-bold text-white">Join RYI</h1>
+          <p className="mt-2 text-zinc-500">Choose how you want to use the platform</p>
+        </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card 
-            className={`cursor-pointer transition-all duration-200 ${
-              selectedType === 'influencer' 
-                ? 'border-white ring-1 ring-white' 
-                : 'hover:border-zinc-600'
-            }`}
+        <div className="grid md:grid-cols-2 gap-5">
+          {/* Creator card */}
+          <motion.button
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             onClick={() => router.push('/signup/influencer')}
+            className="group text-left bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm rounded-2xl p-7 hover:border-zinc-600 hover:bg-zinc-900/80 transition-all duration-200"
           >
-            <div className="p-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 mb-4">
-                <Zap className="h-6 w-6 text-white" />
-              </div>
-              <h2 className="text-xl font-semibold text-white mb-2">I&apos;m an Influencer</h2>
-              <p className="text-sm text-zinc-400 mb-4">
-                Find brand deals, grow your career, and monetize your audience.
-              </p>
-              <ul className="space-y-2 text-sm text-zinc-300">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
-                  Browse brand campaigns
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
-                  Direct brand deals
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
-                  AI content suggestions
-                </li>
-              </ul>
-              <Button className="w-full mt-6" variant={selectedType === 'influencer' ? 'primary' : 'secondary'}>
-                Continue as Influencer
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
+            <div className="h-12 w-12 rounded-2xl bg-green-500/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200">
+              <TrendingUp className="h-6 w-6 text-green-400" />
             </div>
-          </Card>
+            <h2 className="text-xl font-bold text-white mb-2">I&apos;m a Creator</h2>
+            <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
+              Find paid brand deals, grow your income, and get paid in 72 hours.
+            </p>
+            <ul className="space-y-2.5 mb-6">
+              {['Find brand deals with 1K+ followers', 'Get paid in 72 hours — guaranteed', 'Keep 90% of every deal'].map(item => (
+                <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
+                  <Check className="h-4 w-4 text-green-400 shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-2 text-sm font-semibold text-white group-hover:gap-3 transition-all">
+              Continue as Creator <ArrowRight className="h-4 w-4" />
+            </div>
+          </motion.button>
 
-          <Card 
-            className={`cursor-pointer transition-all duration-200 ${
-              selectedType === 'brand' 
-                ? 'border-white ring-1 ring-white' 
-                : 'hover:border-zinc-600'
-            }`}
+          {/* Brand card */}
+          <motion.button
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             onClick={() => router.push('/signup/brand')}
+            className="group text-left bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm rounded-2xl p-7 hover:border-zinc-600 hover:bg-zinc-900/80 transition-all duration-200"
           >
-            <div className="p-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 mb-4">
-                <Building2 className="h-6 w-6 text-white" />
-              </div>
-              <h2 className="text-xl font-semibold text-white mb-2">I&apos;m a Brand</h2>
-              <p className="text-sm text-zinc-400 mb-4">
-                Find the perfect influencers for your campaigns and products.
-              </p>
-              <ul className="space-y-2 text-sm text-zinc-300">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
-                  Post campaigns
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
-                  Search influencers
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500" />
-                  Direct messaging
-                </li>
-              </ul>
-              <Button className="w-full mt-6" variant={selectedType === 'brand' ? 'primary' : 'secondary'}>
-                Continue as Brand
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
+            <div className="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-200">
+              <Briefcase className="h-6 w-6 text-blue-400" />
             </div>
-          </Card>
+            <h2 className="text-xl font-bold text-white mb-2">I&apos;m a Brand</h2>
+            <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
+              Find verified micro-influencers by city, niche, and budget. Launch in 48 hours.
+            </p>
+            <ul className="space-y-2.5 mb-6">
+              {['10,000+ verified creators across India', 'Location-based matching', 'Escrow payment protection'].map(item => (
+                <li key={item} className="flex items-center gap-2.5 text-sm text-zinc-300">
+                  <Check className="h-4 w-4 text-blue-400 shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="flex items-center gap-2 text-sm font-semibold text-white group-hover:gap-3 transition-all">
+              Continue as Brand <ChevronRight className="h-4 w-4" />
+            </div>
+          </motion.button>
         </div>
 
-        <p className="mt-8 text-center text-sm text-zinc-500">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 text-center text-sm text-zinc-600"
+        >
           Already have an account?{' '}
-          <Link href="/login" className="text-white hover:underline">
+          <Link href="/login" className="text-zinc-300 hover:text-white transition-colors font-medium">
             Sign in
           </Link>
-        </p>
+        </motion.p>
       </div>
     </div>
   );

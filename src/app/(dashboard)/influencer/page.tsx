@@ -21,6 +21,7 @@ export default function InfluencerDashboardPage() {
   const [recentCampaigns, setRecentCampaigns] = React.useState<Campaign[]>([]);
   const [activeDeals, setActiveDeals] = React.useState<Deal[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [completingDeal, setCompletingDeal] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -64,6 +65,20 @@ export default function InfluencerDashboardPage() {
 
     fetchData();
   }, []);
+
+  const handleMarkComplete = async (dealId: string, brandId: string, dealTitle: string) => {
+    setCompletingDeal(dealId);
+    await supabase.from('deals').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', dealId);
+    await supabase.from('notifications').insert({
+      user_id: brandId,
+      type: 'deal_completed',
+      title: 'Deal Marked Complete',
+      message: `The influencer has marked "${dealTitle}" as complete. Please review and release payment.`,
+      link: `/brand/deals/${dealId}`,
+    });
+    setActiveDeals(prev => prev.map(d => d.id === dealId ? { ...d, status: 'completed' } : d));
+    setCompletingDeal(null);
+  };
 
   if (isLoading) {
     return (
@@ -225,8 +240,12 @@ export default function InfluencerDashboardPage() {
                     <div className="text-right ml-4">
                       <p className="font-semibold text-white">{formatCurrency(deal.amount)}</p>
                       {deal.status === 'active' && (
-                        <button className="mt-1 text-xs text-white bg-zinc-700 px-2 py-1 rounded hover:bg-zinc-600 transition-colors">
-                          Mark Complete
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleMarkComplete(deal.id, deal.brand_id, deal.title); }}
+                          disabled={completingDeal === deal.id}
+                          className="mt-1 text-xs text-white bg-zinc-700 px-2 py-1 rounded hover:bg-zinc-600 transition-colors disabled:opacity-50"
+                        >
+                          {completingDeal === deal.id ? 'Saving...' : 'Mark Complete'}
                         </button>
                       )}
                     </div>
