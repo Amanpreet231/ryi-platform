@@ -39,7 +39,7 @@ export default function BrandSignupPage() {
         await supabase.from('profiles').update({ user_type: 'brand', full_name: formData.fullName, phone: formData.phone }).eq('id', data.user.id);
         await supabase.from('brand_profiles').insert({ user_id: data.user.id, company_name: formData.companyName });
         setSuccess(true);
-        setTimeout(() => { window.location.href = '/onboarding/brand'; }, 1500);
+        setTimeout(() => { router.push('/onboarding/brand'); }, 1500);
       }
     } catch { setError('An unexpected error occurred'); setIsLoading(false); }
   };
@@ -76,7 +76,7 @@ export default function BrandSignupPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Your Name</label>
                 <input name="fullName" type="text" placeholder="Amit Kumar" value={formData.fullName} onChange={handleChange} required className={inputClass} />

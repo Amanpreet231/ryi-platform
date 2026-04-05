@@ -41,7 +41,7 @@ const statusStyles: Record<string, string> = {
 
 const fade = { hidden: { opacity: 0, y: 10 }, visible: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.3, delay: i * 0.04 } }) };
 
-export default function BrandApplicationsPage() {
+function BrandApplicationsContent() {
   const searchParams = useSearchParams();
   const supabase = createClient();
   const [applications, setApplications] = React.useState<AppWithInfluencer[]>([]);
@@ -231,7 +231,7 @@ export default function BrandApplicationsPage() {
                   )}
 
                   <button onClick={() => setModalApp(app)}
-                    className="p-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors">
+                    className="p-2 rounded-lg border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center">
                     <Eye className="h-3.5 w-3.5" />
                   </button>
 
@@ -375,5 +375,13 @@ export default function BrandApplicationsPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function BrandApplicationsPage() {
+  return (
+    <React.Suspense fallback={<div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-zinc-900 rounded-2xl animate-pulse" />)}</div>}>
+      <BrandApplicationsContent />
+    </React.Suspense>
   );
 }

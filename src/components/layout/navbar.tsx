@@ -91,14 +91,14 @@ export function Navbar() {
                   href="/notifications"
                   className="relative flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
                 >
-                  <Bell className="h-4.5 w-4.5" />
+                  <Bell className="h-5 w-5" />
                   <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500 ring-1 ring-black" />
                 </Link>
                 <Link
                   href="/messages"
                   className="relative flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
                 >
-                  <MessageCircle className="h-4.5 w-4.5" />
+                  <MessageCircle className="h-5 w-5" />
                   <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500 ring-1 ring-black" />
                 </Link>
               </>
@@ -170,7 +170,7 @@ export function Navbar() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
             >
-              {isMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>

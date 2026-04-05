@@ -40,7 +40,7 @@ export default function InfluencerSignupPage() {
         await supabase.from('profiles').update({ user_type: 'influencer', full_name: formData.fullName, phone: formData.phone }).eq('id', data.user.id);
         await supabase.from('influencer_profiles').insert({ user_id: data.user.id });
         setSuccess(true);
-        setTimeout(() => { window.location.href = '/onboarding/influencer'; }, 1500);
+        setTimeout(() => { router.push('/onboarding/influencer'); }, 1500);
       }
     } catch { setError('An unexpected error occurred'); setIsLoading(false); }
   };

@@ -75,16 +75,16 @@ export default function InfluencerDealDetailPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
         <button onClick={() => router.back()}
-          className="h-9 w-9 rounded-xl border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 flex items-center justify-center transition-colors">
+          className="h-9 w-9 rounded-xl border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 flex items-center justify-center transition-colors shrink-0">
           <ArrowLeft className="h-4 w-4" />
         </button>
-        <div>
-          <h1 className="text-2xl font-bold text-white">{deal.title}</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">Deal with {deal.brand?.company_name || 'Brand'}</p>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-white truncate">{deal.title}</h1>
+          <p className="text-zinc-500 text-sm mt-0.5 truncate">Deal with {deal.brand?.company_name || 'Brand'}</p>
         </div>
-        <span className={`ml-auto text-xs px-2.5 py-1 rounded-full font-medium ${statusStyles[deal.status] || statusStyles.cancelled}`}>{deal.status}</span>
+        <span className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${statusStyles[deal.status] || statusStyles.cancelled}`}>{deal.status}</span>
       </motion.div>
 
       {/* Progress */}

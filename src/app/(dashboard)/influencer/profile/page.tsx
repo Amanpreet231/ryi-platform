@@ -162,7 +162,7 @@ export default function InfluencerProfilePage() {
       {/* Social media */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={sectionClass}>
         <h3 className="font-semibold text-white text-sm">Social Media</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Instagram Handle</label>
             <input name="instagramHandle" placeholder="@username" value={formData.instagramHandle} onChange={handleChange} className={inputClass} />
@@ -172,7 +172,7 @@ export default function InfluencerProfilePage() {
             <input name="instagramFollowers" type="number" placeholder="50000" value={formData.instagramFollowers} onChange={handleChange} className={inputClass} />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>YouTube Channel</label>
             <input name="youtubeHandle" placeholder="channel name" value={formData.youtubeHandle} onChange={handleChange} className={inputClass} />

@@ -274,7 +274,7 @@ export default function FindInfluencersPage() {
         </div>
 
         {showFilters && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-1">
             <select value={filters.city} onChange={(e) => setFilters({ ...filters, city: e.target.value })}
               className="h-10 px-3 rounded-xl border border-zinc-800 bg-zinc-900/50 text-sm text-white focus:border-zinc-600 focus:outline-none">
               <option value="">All Cities</option>
@@ -291,7 +291,7 @@ export default function FindInfluencersPage() {
               className="h-10 px-3 rounded-xl border border-zinc-800 bg-zinc-900/50 text-sm text-white placeholder-zinc-600 focus:border-zinc-600 focus:outline-none" />
             {activeFilterCount > 0 && (
               <button onClick={() => setFilters({ search: '', city: '', niche: '', minFollowers: '', maxPrice: '' })}
-                className="col-span-2 md:col-span-4 text-xs text-zinc-500 hover:text-white transition-colors py-1">
+                className="col-span-1 sm:col-span-2 md:col-span-4 text-xs text-zinc-500 hover:text-white transition-colors py-1">
                 Clear all filters
               </button>
             )}

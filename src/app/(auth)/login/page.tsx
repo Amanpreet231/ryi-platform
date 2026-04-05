@@ -41,11 +41,11 @@ export default function LoginPage() {
           .single();
 
         if (profile?.user_type === 'influencer') {
-          window.location.href = '/influencer';
+          router.push('/influencer');
         } else if (profile?.user_type === 'brand') {
-          window.location.href = '/brand';
+          router.push('/brand');
         } else {
-          window.location.href = '/onboarding/influencer';
+          router.push('/onboarding/influencer');
         }
       }
     } catch {

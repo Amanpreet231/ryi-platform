@@ -54,7 +54,7 @@ export default function BrandOnboardingPage() {
       }).eq('user_id', user.id);
 
       if (err) throw err;
-      window.location.href = '/brand';
+      router.push('/brand');
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -111,7 +111,7 @@ export default function BrandOnboardingPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3 pb-2 mb-1">
                   <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                    <Building2 className="h-4.5 w-4.5 text-blue-400" />
+                    <Building2 className="h-5 w-5 text-blue-400" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white">Company Information</p>
@@ -129,7 +129,7 @@ export default function BrandOnboardingPage() {
                   <input name="website" type="url" placeholder="https://fashionforward.com" value={formData.website} onChange={handleChange} className={inputClass} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className={labelClass}>Industry <span className="text-red-500">*</span></label>
                     <select name="industry" value={formData.industry} onChange={handleChange} className={inputClass}>
@@ -157,7 +157,7 @@ export default function BrandOnboardingPage() {
               <div className="space-y-5">
                 <div className="flex items-center gap-3 pb-2 mb-1">
                   <div className="h-9 w-9 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                    <Target className="h-4.5 w-4.5 text-purple-400" />
+                    <Target className="h-5 w-5 text-purple-400" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white">About Your Brand</p>
