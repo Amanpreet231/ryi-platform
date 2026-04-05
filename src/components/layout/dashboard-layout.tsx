@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import {
@@ -182,52 +183,69 @@ export function DashboardLayout({ children, userType, user, profile }: Dashboard
       </aside>
 
       {/* ── Mobile full-screen drawer ── */}
-      {isMobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsMobileOpen(false)} />
-          <aside className="absolute top-0 left-0 h-full w-72 bg-zinc-950 border-r border-zinc-800/60 flex flex-col">
-            <div className="flex h-16 items-center justify-between px-4 border-b border-zinc-800/60">
-              <Link href="/" className="flex items-center gap-2.5" onClick={() => setIsMobileOpen(false)}>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-                  <span className="text-sm font-black text-black">RYI</span>
-                </div>
-                <span className="font-semibold text-white text-sm">ReachYourInfluencer</span>
-              </Link>
-              <button onClick={() => setIsMobileOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all',
-                    isActive(item.href) ? 'bg-white text-black' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
-                  )}
-                >
-                  <item.icon className="h-5 w-5 shrink-0" />
-                  <span>{item.label}</span>
+      <AnimatePresence>
+        {isMobileOpen && (
+          <div className="fixed inset-0 z-[100]" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-black/70"
+              onClick={() => setIsMobileOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
+              className="absolute top-0 left-0 h-full w-72 bg-zinc-950 border-r border-zinc-800/60 flex flex-col"
+              style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: '18rem' }}
+            >
+              <div className="flex h-16 items-center justify-between px-4 border-b border-zinc-800/60 shrink-0">
+                <Link href="/" className="flex items-center gap-2.5" onClick={() => setIsMobileOpen(false)}>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
+                    <span className="text-sm font-black text-black">RYI</span>
+                  </div>
+                  <span className="font-semibold text-white text-sm">ReachYourInfluencer</span>
                 </Link>
-              ))}
-            </nav>
-            <div className="p-3 border-t border-zinc-800/60 space-y-1">
-              <div className="flex items-center gap-3 px-3 py-2">
-                <UserAvatar url={user.avatar_url} name={displayName} />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{displayName}</p>
-                  <p className="text-xs text-zinc-500 capitalize">{userType}</p>
-                </div>
+                <button onClick={() => setIsMobileOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-800">
+                  <X className="h-4 w-4" />
+                </button>
               </div>
-              <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-zinc-900 transition-colors text-sm">
-                <LogOut className="h-4 w-4" />
-                <span>Sign out</span>
-              </button>
-            </div>
-          </aside>
-        </div>
-      )}
+              <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileOpen(false)}
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all',
+                      isActive(item.href) ? 'bg-white text-black' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
+                    )}
+                  >
+                    <item.icon className="h-5 w-5 shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </nav>
+              <div className="p-3 border-t border-zinc-800/60 space-y-1 shrink-0">
+                <div className="flex items-center gap-3 px-3 py-2">
+                  <UserAvatar url={user.avatar_url} name={displayName} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{displayName}</p>
+                    <p className="text-xs text-zinc-500 capitalize">{userType}</p>
+                  </div>
+                </div>
+                <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-zinc-900 transition-colors text-sm">
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </motion.aside>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ── Main content ── */}
       <div className={cn(
