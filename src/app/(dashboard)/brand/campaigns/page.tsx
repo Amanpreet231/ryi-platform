@@ -1,165 +1,167 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
-import { Plus, Briefcase, Edit, Trash2, Users } from 'lucide-react';
-import { Card, CardContent, Button, Badge } from '@/components/ui';
-import { formatCurrency, formatRelativeTime } from '@/lib/utils';
+import { Plus, Briefcase, Users, Trash2, ToggleLeft, ToggleRight, ArrowRight, Clock } from 'lucide-react';
+import { formatRelativeTime } from '@/lib/utils';
 import type { Campaign } from '@/types';
+
+const fade = { hidden: { opacity: 0, y: 12 }, visible: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.35, delay: i * 0.05 } }) };
+
+const statusStyles: Record<string, string> = {
+  open: 'bg-green-500/10 text-green-400 border border-green-500/20',
+  closed: 'bg-zinc-800 text-zinc-500',
+  paused: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20',
+};
 
 export default function BrandCampaignsPage() {
   const router = useRouter();
   const supabase = createClient();
   const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
   const fetchCampaigns = React.useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-
-    const { data } = await supabase
-      .from('campaigns')
-      .select('*')
-      .eq('brand_id', user.id)
-      .order('created_at', { ascending: false });
-
+    const { data } = await supabase.from('campaigns').select('*').eq('brand_id', user.id).order('created_at', { ascending: false });
     setCampaigns(data || []);
     setIsLoading(false);
   }, []);
 
-  React.useEffect(() => {
-    fetchCampaigns();
-  }, [fetchCampaigns]);
+  React.useEffect(() => { fetchCampaigns(); }, [fetchCampaigns]);
 
-  const handleDelete = async (campaignId: string) => {
-    setDeletingId(campaignId);
-    await supabase.from('campaigns').delete().eq('id', campaignId);
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    await supabase.from('campaigns').delete().eq('id', id);
     setConfirmDeleteId(null);
     setDeletingId(null);
     await fetchCampaigns();
   };
 
-  const handleToggleStatus = async (campaign: Campaign) => {
-    const newStatus = campaign.status === 'open' ? 'closed' : 'open';
-    
-    await supabase
-      .from('campaigns')
-      .update({ status: newStatus })
-      .eq('id', campaign.id);
-
+  const handleToggle = async (campaign: Campaign) => {
+    setTogglingId(campaign.id);
+    await supabase.from('campaigns').update({ status: campaign.status === 'open' ? 'closed' : 'open' }).eq('id', campaign.id);
+    setTogglingId(null);
     await fetchCampaigns();
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin h-8 w-8 border-2 border-white border-t-transparent rounded-full" />
-      </div>
-    );
-  }
+  if (isLoading) return (
+    <div className="space-y-4">
+      {[...Array(3)].map((_, i) => <div key={i} className="h-28 bg-zinc-900 rounded-2xl animate-pulse" />)}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <motion.div variants={fade} initial="hidden" animate="visible" custom={0} className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">My Campaigns</h1>
-          <p className="text-zinc-400">{campaigns.length} campaigns created</p>
+          <p className="text-zinc-500 text-sm mt-0.5">
+            {campaigns.length === 0 ? 'No campaigns yet' : `${campaigns.length} campaign${campaigns.length !== 1 ? 's' : ''} · ${campaigns.filter(c => c.status === 'open').length} open`}
+          </p>
         </div>
-        <Button onClick={() => router.push('/brand/campaigns/new')}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Campaign
-        </Button>
-      </div>
+        <button onClick={() => router.push('/brand/campaigns/new')}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition-colors text-sm">
+          <Plus className="h-4 w-4" /> Post Campaign
+        </button>
+      </motion.div>
 
-      {campaigns.length > 0 ? (
-        <div className="grid gap-4">
-          {campaigns.map((campaign) => (
-            <Card key={campaign.id}>
-              <CardContent className="p-5">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-semibold text-white">{campaign.title}</h3>
-                      <Badge 
-                        variant={campaign.status === 'open' ? 'success' : 'default'}
-                      >
-                        {campaign.status}
-                      </Badge>
-                    </div>
-                    <p className="mt-1 text-sm text-zinc-400 line-clamp-1">
-                      {campaign.description}
-                    </p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <span className="text-sm text-zinc-500">
-                        Budget: {formatCurrency(campaign.budget)}
-                      </span>
-                      <span className="flex items-center gap-1 text-sm text-zinc-500">
-                        <Users className="h-3 w-3" />
-                        {campaign.application_count} applications
-                      </span>
-                      <span className="text-sm text-zinc-500">
-                        {formatRelativeTime(campaign.created_at)}
-                      </span>
-                    </div>
+      {campaigns.length === 0 ? (
+        /* Empty state */
+        <motion.div variants={fade} initial="hidden" animate="visible" custom={1}
+          className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-10 text-center">
+          <div className="h-14 w-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4">
+            <Briefcase className="h-7 w-7 text-blue-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-white mb-2">Post your first campaign</h3>
+          <p className="text-zinc-500 text-sm mb-6 max-w-xs mx-auto leading-relaxed">
+            Describe what you need and get applications from matched creators within 24 hours.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-zinc-500 mb-7">
+            {['Takes 2 minutes', 'Free to post', 'Reach 10K+ creators'].map(t => (
+              <span key={t} className="flex items-center gap-1.5"><span className="text-green-400">✓</span>{t}</span>
+            ))}
+          </div>
+          <button onClick={() => router.push('/brand/campaigns/new')}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-zinc-100 transition-colors text-sm">
+            <Plus className="h-4 w-4" /> Create First Campaign
+          </button>
+        </motion.div>
+      ) : (
+        <div className="space-y-3">
+          {campaigns.map((campaign, i) => (
+            <motion.div key={campaign.id} variants={fade} initial="hidden" animate="visible" custom={i + 1}
+              className="bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm rounded-2xl p-5 hover:border-zinc-700/80 transition-all">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                {/* Left: info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h3 className="font-semibold text-white text-sm">{campaign.title}</h3>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusStyles[campaign.status] || statusStyles.closed}`}>
+                      {campaign.status}
+                    </span>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => router.push(`/brand/campaigns/${campaign.id}`)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleToggleStatus(campaign)}
-                    >
-                      {campaign.status === 'open' ? 'Close' : 'Open'}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => router.push(`/brand/applications?campaign=${campaign.id}`)}
-                    >
-                      <Users className="h-4 w-4" />
-                    </Button>
-                    {confirmDeleteId === campaign.id ? (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-zinc-400">Delete?</span>
-                        <Button size="sm" variant="outline" className="text-red-400 hover:text-red-300 h-7 px-2 text-xs"
-                          onClick={() => handleDelete(campaign.id)} disabled={deletingId === campaign.id}>
-                          {deletingId === campaign.id ? '...' : 'Yes'}
-                        </Button>
-                        <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setConfirmDeleteId(null)}>No</Button>
-                      </div>
-                    ) : (
-                      <Button variant="outline" size="sm" onClick={() => setConfirmDeleteId(campaign.id)} className="text-red-400 hover:text-red-300">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                  <p className="text-xs text-zinc-500 mt-1.5 line-clamp-1">{campaign.description}</p>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2.5 text-xs text-zinc-500">
+                    <span className="font-semibold text-white">₹{campaign.budget.toLocaleString('en-IN')}</span>
+                    <span className="flex items-center gap-1"><Users className="h-3 w-3" />{campaign.application_count} applied</span>
+                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{formatRelativeTime(campaign.created_at)}</span>
+                    {campaign.niche?.length > 0 && (
+                      <span className="text-zinc-600">{campaign.niche.slice(0, 2).join(', ')}{campaign.niche.length > 2 ? ` +${campaign.niche.length - 2}` : ''}</span>
                     )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+
+                {/* Right: actions */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Applications */}
+                  <Link href={`/brand/applications?campaign=${campaign.id}`}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 text-xs font-medium transition-colors">
+                    <Users className="h-3.5 w-3.5" />
+                    {campaign.application_count > 0 && <span className="bg-white text-black text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">{campaign.application_count}</span>}
+                    Applications
+                  </Link>
+
+                  {/* Toggle open/close */}
+                  <button onClick={() => handleToggle(campaign)} disabled={togglingId === campaign.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 text-xs font-medium transition-colors disabled:opacity-40">
+                    {campaign.status === 'open'
+                      ? <ToggleRight className="h-3.5 w-3.5 text-green-400" />
+                      : <ToggleLeft className="h-3.5 w-3.5" />}
+                    {campaign.status === 'open' ? 'Close' : 'Open'}
+                  </button>
+
+                  {/* Delete */}
+                  {confirmDeleteId === campaign.id ? (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-zinc-500">Delete?</span>
+                      <button onClick={() => handleDelete(campaign.id)} disabled={deletingId === campaign.id}
+                        className="px-2.5 py-1.5 rounded-lg border border-red-500/40 text-red-400 hover:bg-red-500/10 text-xs font-medium transition-colors disabled:opacity-40">
+                        {deletingId === campaign.id ? '...' : 'Yes'}
+                      </button>
+                      <button onClick={() => setConfirmDeleteId(null)}
+                        className="px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-white text-xs font-medium transition-colors">
+                        No
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setConfirmDeleteId(campaign.id)}
+                      className="p-1.5 rounded-lg border border-zinc-800 text-zinc-600 hover:text-red-400 hover:border-red-500/40 transition-colors">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
-      ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Briefcase className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No campaigns yet</h3>
-            <p className="text-zinc-400 mb-4">Create your first campaign to start finding influencers</p>
-            <Button onClick={() => router.push('/brand/campaigns/new')}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Campaign
-            </Button>
-          </CardContent>
-        </Card>
       )}
     </div>
   );

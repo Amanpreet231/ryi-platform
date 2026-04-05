@@ -2,72 +2,50 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
-import { Sparkles, Copy, Check, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
-import { Button, Input, Textarea, Select, Card, CardContent } from '@/components/ui';
+import { Sparkles, Copy, Check, RefreshCw } from 'lucide-react';
 import { CONTENT_TYPES } from '@/lib/utils';
+
+const inputClass = "w-full bg-zinc-900/50 border border-zinc-800 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:border-zinc-600 focus:outline-none transition-colors";
+const labelClass = "block text-sm font-medium text-zinc-300 mb-1.5";
+const sectionClass = "bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-sm rounded-2xl p-6 space-y-5";
 
 export default function AIAssistantPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [user, setUser] = React.useState<any>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [generatedContent, setGeneratedContent] = React.useState('');
   const [copied, setCopied] = React.useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = React.useState(true);
 
   const [formData, setFormData] = React.useState({
-    productName: '',
-    productDescription: '',
-    targetAudience: '',
-    campaignType: '',
-    influencerNiche: '',
-    influencerBio: '',
-    influencerFollowers: '',
+    productName: '', productDescription: '', targetAudience: '', campaignType: '',
+    influencerNiche: '', influencerBio: '', influencerFollowers: '',
     contentType: 'Instagram Reels',
   });
 
   React.useEffect(() => {
-    fetchProfile();
-  }, []);
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push('/login'); return; }
 
-  const fetchProfile = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    setUser(user);
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (profile?.user_type === 'influencer') {
-      const { data: infProfile } = await supabase
-        .from('influencer_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (infProfile) {
-        setFormData(prev => ({
-          ...prev,
-          influencerNiche: infProfile.niche?.join(', ') || '',
-          influencerBio: infProfile.bio || '',
-          influencerFollowers: infProfile.instagram_followers 
-            ? `${infProfile.instagram_followers} Instagram followers` 
-            : infProfile.youtube_subscribers 
-              ? `${infProfile.youtube_subscribers} YouTube subscribers`
-              : '',
-        }));
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (profile?.user_type === 'influencer') {
+        const { data: ip } = await supabase.from('influencer_profiles').select('*').eq('user_id', user.id).single();
+        if (ip) {
+          setFormData(prev => ({
+            ...prev,
+            influencerNiche: ip.niche?.join(', ') || '',
+            influencerBio: ip.bio || '',
+            influencerFollowers: ip.instagram_followers ? `${ip.instagram_followers} Instagram followers`
+              : ip.youtube_subscribers ? `${ip.youtube_subscribers} YouTube subscribers` : '',
+          }));
+        }
       }
-    }
-
-    setIsLoadingProfile(false);
-  };
+      setIsLoadingProfile(false);
+    })();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -76,23 +54,11 @@ export default function AIAssistantPage() {
   const handleGenerate = async () => {
     setIsLoading(true);
     setGeneratedContent('');
-
     try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setGeneratedContent(data.content);
-      } else {
-        setGeneratedContent(`Error: ${data.error || 'Failed to generate content. Please try again.'}`);
-      }
-    } catch (error) {
-      console.error('Error:', error);
+      const res = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+      const data = await res.json();
+      setGeneratedContent(data.success ? data.content : `Error: ${data.error || 'Failed to generate content.'}`);
+    } catch {
       setGeneratedContent('Error: Failed to connect to AI service. Please try again.');
     } finally {
       setIsLoading(false);
@@ -107,212 +73,138 @@ export default function AIAssistantPage() {
 
   const handleReset = () => {
     setGeneratedContent('');
-    setFormData({
-      productName: '',
-      productDescription: '',
-      targetAudience: '',
-      campaignType: '',
-      influencerNiche: formData.influencerNiche,
-      influencerBio: formData.influencerBio,
-      influencerFollowers: formData.influencerFollowers,
-      contentType: 'Instagram Reels',
-    });
+    setFormData(prev => ({ ...prev, productName: '', productDescription: '', targetAudience: '', campaignType: '', contentType: 'Instagram Reels' }));
   };
 
-  if (isLoadingProfile) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
-      </div>
-    );
-  }
+  if (isLoadingProfile) return (
+    <div className="space-y-4 max-w-4xl">
+      {[...Array(2)].map((_, i) => <div key={i} className="h-48 bg-zinc-900 rounded-2xl animate-pulse" />)}
+    </div>
+  );
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center gap-3">
-        <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500">
-          <Sparkles className="h-6 w-6 text-white" />
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
+        <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+          <Sparkles className="h-5 w-5 text-white" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-white">AI Promotion Assistant</h1>
-          <p className="text-zinc-400">Get creative content ideas and scripts for your brand collaborations</p>
+          <p className="text-zinc-500 text-sm mt-0.5">Generate scripts and content ideas for your brand collaborations</p>
         </div>
+      </motion.div>
+
+      {/* Form */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {/* Product details */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className={sectionClass}>
+          <div className="flex items-center gap-2.5 pb-1">
+            <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <span className="text-sm">🏷️</span>
+            </div>
+            <p className="font-semibold text-white text-sm">Product Details</p>
+          </div>
+          <div>
+            <label className={labelClass}>Product / Brand Name</label>
+            <input name="productName" placeholder="e.g., GlowUp Skincare" value={formData.productName} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Product Description</label>
+            <textarea name="productDescription" rows={3} placeholder="What is this product? What makes it unique?" value={formData.productDescription} onChange={handleChange} className={`${inputClass} resize-none`} />
+          </div>
+          <div>
+            <label className={labelClass}>Target Audience</label>
+            <input name="targetAudience" placeholder="e.g., Women aged 18-30 interested in skincare" value={formData.targetAudience} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Campaign Type</label>
+            <input name="campaignType" placeholder="e.g., Product Review, Brand Awareness, Sale Promo" value={formData.campaignType} onChange={handleChange} className={inputClass} />
+          </div>
+        </motion.div>
+
+        {/* Creator profile */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={sectionClass}>
+          <div className="flex items-center gap-2.5 pb-1">
+            <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+              <span className="text-sm">👤</span>
+            </div>
+            <p className="font-semibold text-white text-sm">Your Profile <span className="text-zinc-600 font-normal">(auto-filled)</span></p>
+          </div>
+          <div>
+            <label className={labelClass}>Your Niche</label>
+            <input name="influencerNiche" placeholder="e.g., Fashion, Beauty, Fitness" value={formData.influencerNiche} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Your Bio</label>
+            <textarea name="influencerBio" rows={3} placeholder="Tell us about yourself" value={formData.influencerBio} onChange={handleChange} className={`${inputClass} resize-none`} />
+          </div>
+          <div>
+            <label className={labelClass}>Followers / Subscribers</label>
+            <input name="influencerFollowers" placeholder="e.g., 15K Instagram followers" value={formData.influencerFollowers} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Content Type</label>
+            <select name="contentType" value={formData.contentType} onChange={handleChange} className={inputClass}>
+              {CONTENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+        </motion.div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <h3 className="font-semibold text-white flex items-center gap-2">
-              <span className="text-lg">🏷️</span> Product Details
-            </h3>
-
-            <Input
-              label="Product/Brand Name"
-              name="productName"
-              placeholder="e.g., GlowUp Skincare"
-              value={formData.productName}
-              onChange={handleChange}
-            />
-
-            <Textarea
-              label="Product Description"
-              name="productDescription"
-              placeholder="What is this product? What makes it unique?"
-              value={formData.productDescription}
-              onChange={handleChange}
-            />
-
-            <Input
-              label="Target Audience"
-              name="targetAudience"
-              placeholder="e.g., Women aged 18-30 interested in skincare"
-              value={formData.targetAudience}
-              onChange={handleChange}
-            />
-
-            <Input
-              label="Campaign Type"
-              name="campaignType"
-              placeholder="e.g., Product Review, Brand Awareness, Sale Promo"
-              value={formData.campaignType}
-              onChange={handleChange}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <h3 className="font-semibold text-white flex items-center gap-2">
-              <span className="text-lg">👤</span> Your Profile (Auto-filled)
-            </h3>
-
-            <Input
-              label="Your Niche"
-              name="influencerNiche"
-              placeholder="e.g., Fashion, Beauty, Fitness"
-              value={formData.influencerNiche}
-              onChange={handleChange}
-            />
-
-            <Textarea
-              label="Your Bio"
-              name="influencerBio"
-              placeholder="Tell us about yourself"
-              value={formData.influencerBio}
-              onChange={handleChange}
-            />
-
-            <Input
-              label="Followers/Subscribers"
-              name="influencerFollowers"
-              placeholder="e.g., 15K Instagram followers"
-              value={formData.influencerFollowers}
-              onChange={handleChange}
-            />
-
-            <Select
-              label="Content Type"
-              name="contentType"
-              options={CONTENT_TYPES.map(t => ({ value: t, label: t }))}
-              value={formData.contentType}
-              onChange={handleChange}
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="flex gap-4">
-        <Button 
-          onClick={handleGenerate} 
-          disabled={isLoading || !formData.productName || !formData.productDescription}
-          isLoading={isLoading}
-          className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-        >
-          <Sparkles className="h-4 w-4 mr-2" />
-          Generate Content Ideas
-        </Button>
-        
+      {/* Action buttons */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex gap-3">
+        <button onClick={handleGenerate} disabled={isLoading || !formData.productName || !formData.productDescription}
+          className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 text-sm">
+          {isLoading
+            ? <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Generating...</>
+            : <><Sparkles className="h-4 w-4" />Generate Content Ideas</>
+          }
+        </button>
         {generatedContent && (
-          <Button variant="outline" onClick={handleReset}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Reset
-          </Button>
+          <button onClick={handleReset}
+            className="flex items-center gap-2 px-5 py-3 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 rounded-xl text-sm font-medium transition-colors">
+            <RefreshCw className="h-4 w-4" />Reset
+          </button>
         )}
-      </div>
+      </motion.div>
 
-      {generatedContent && (
-        <Card className="border-purple-500/30">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-white flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-purple-400" />
-                Generated Content
-              </h3>
-              <Button variant="outline" size="sm" onClick={handleCopy}>
-                {copied ? (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy
-                  </>
-                )}
-              </Button>
+      {/* Generated content */}
+      {generatedContent ? (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          className="bg-zinc-900/60 border border-purple-500/20 rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/60">
+            <h3 className="font-semibold text-white flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-purple-400" />Generated Content
+            </h3>
+            <button onClick={handleCopy}
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 rounded-lg text-xs font-medium transition-colors">
+              {copied ? <><Check className="h-3.5 w-3.5 text-green-400" />Copied!</> : <><Copy className="h-3.5 w-3.5" />Copy</>}
+            </button>
+          </div>
+          <div className="p-6">
+            <div className="text-zinc-300 text-sm leading-relaxed space-y-1">
+              {generatedContent.split('\n').map((line, i) => {
+                if (line.startsWith('**') && line.endsWith('**')) return <h3 key={i} className="text-base font-bold text-white mt-4 mb-2 first:mt-0">{line.replace(/\*\*/g, '')}</h3>;
+                if (line.startsWith('**')) return <p key={i} className="font-semibold text-purple-300 mt-3">{line.replace(/\*\*/g, '')}</p>;
+                if (line.startsWith('- ')) return <li key={i} className="ml-4 list-disc">{line.replace('- ', '')}</li>;
+                if (line.trim() === '') return <br key={i} />;
+                return <p key={i}>{line}</p>;
+              })}
             </div>
-            
-            <div className="prose prose-invert prose-sm max-w-none">
-              <div className="text-zinc-300 whitespace-pre-wrap leading-relaxed">
-                {generatedContent.split('\n').map((line, i) => {
-                  if (line.startsWith('**') && line.endsWith('**')) {
-                    return (
-                      <h3 key={i} className="text-lg font-bold text-white mt-4 mb-2">
-                        {line.replace(/\*\*/g, '')}
-                      </h3>
-                    );
-                  }
-                  if (line.startsWith('**')) {
-                    return (
-                      <p key={i} className="font-semibold text-purple-300 mt-3">
-                        {line.replace(/\*\*/g, '')}
-                      </p>
-                    );
-                  }
-                  if (line.startsWith('- ')) {
-                    return (
-                      <li key={i} className="ml-4">
-                        {line.replace('- ', '')}
-                      </li>
-                    );
-                  }
-                  if (line.trim() === '') {
-                    return <br key={i} />;
-                  }
-                  return (
-                    <p key={i} className="my-1">
-                      {line}
-                    </p>
-                  );
-                })}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!generatedContent && !isLoading && (
-        <Card className="border-dashed border-2">
-          <CardContent className="py-12 text-center">
-            <Sparkles className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">Ready to Create Amazing Content?</h3>
-            <p className="text-zinc-400 max-w-md mx-auto">
-              Fill in the details on the left and click &quot;Generate Content Ideas&quot; to get AI-powered 
-              promotion strategies and ready-to-use scripts for your brand collaborations.
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+        </motion.div>
+      ) : !isLoading && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="bg-zinc-900/60 border border-dashed border-zinc-700 rounded-2xl p-12 text-center">
+          <div className="h-14 w-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="h-7 w-7 text-purple-400" />
+          </div>
+          <h3 className="font-semibold text-white mb-1">Ready to create amazing content?</h3>
+          <p className="text-zinc-500 text-sm max-w-sm mx-auto leading-relaxed">
+            Fill in the product details and click Generate to get AI-powered promotion strategies and ready-to-use scripts.
+          </p>
+        </motion.div>
       )}
     </div>
   );
