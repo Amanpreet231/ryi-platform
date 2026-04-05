@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
-import { Briefcase, Handshake, TrendingUp, Eye, CheckCircle, Clock, ArrowRight } from 'lucide-react';
+import { Briefcase, Handshake, TrendingUp, Eye, CheckCircle, Clock, ArrowRight, Share2, Copy, Check } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils';
 import type { Campaign, Deal } from '@/types';
 
@@ -60,6 +60,14 @@ export default function InfluencerDashboardPage() {
   };
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0];
+  const profileUrl = user ? `https://ryi-platform.vercel.app/creator/${user.id}` : '';
+  const [copied, setCopied] = React.useState(false);
+  const copyProfileLink = () => {
+    navigator.clipboard.writeText(profileUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   if (isLoading) return (
     <div className="space-y-6">
@@ -72,9 +80,21 @@ export default function InfluencerDashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div variants={fade} initial="hidden" animate="visible" custom={0}>
-        <h1 className="text-2xl font-bold text-white">Welcome back{firstName ? `, ${firstName}` : ''}!</h1>
-        <p className="text-zinc-500 text-sm mt-0.5">Here's your performance overview</p>
+      <motion.div variants={fade} initial="hidden" animate="visible" custom={0} className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Welcome back{firstName ? `, ${firstName}` : ''}!</h1>
+          <p className="text-zinc-500 text-sm mt-0.5">Here's your performance overview</p>
+        </div>
+        {user && (
+          <button
+            onClick={copyProfileLink}
+            className="shrink-0 flex items-center gap-2 px-3 py-2 border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 rounded-xl text-xs font-medium transition-colors"
+          >
+            {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Share2 className="h-3.5 w-3.5" />}
+            <span className="hidden sm:inline">{copied ? 'Link copied!' : 'Share Profile'}</span>
+            <span className="sm:hidden">{copied ? 'Copied!' : 'Share'}</span>
+          </button>
+        )}
       </motion.div>
 
       {/* Stats */}
